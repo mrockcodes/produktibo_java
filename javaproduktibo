@@ -1,0 +1,13 @@
+import java.util.Arrays;
+
+public class Hello {
+    public static void main(String[] args) {
+        int[] a = {23, 45, 71, 12, 87, 66, 20, 33, 15, 69};
+        int min = a[0];
+        for (int i = 1; i < a.length; i++) {
+            if (a[i] < min)
+                min = a[i];
+        }
+        System.out.println("The minimum value is: " + min);
+    }
+}
