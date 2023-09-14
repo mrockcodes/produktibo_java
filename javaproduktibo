@@ -1,10 +1,17 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class PersonalTaskListWithOperations {
+public class PersonalTaskListWithAlarm {
+    private static List<String> taskList = new ArrayList<>();
+    private static Timer timer = new Timer();
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     public static void main(String[] args) {
-        List<String> taskList = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -13,7 +20,8 @@ public class PersonalTaskListWithOperations {
             System.out.println("2. View Tasks");
             System.out.println("3. View Number of Tasks");
             System.out.println("4. Delete Task");
-            System.out.println("5. Exit");
+            System.out.println("5. Set Alarm for Urgent Task");
+            System.out.println("6. Exit");
             System.out.print("Enter your choice: ");
 
             int choice = scanner.nextInt();
@@ -57,13 +65,54 @@ public class PersonalTaskListWithOperations {
                     }
                     break;
                 case 5:
-                    System.out.println("Exiting the program.");
+                    if (taskList.isEmpty()) {
+                        System.out.println("No tasks available to set an alarm for.");
+                    } else {
+                        System.out.print("Enter the task number to set an alarm: ");
+                        int taskNumber = scanner.nextInt();
+                        scanner.nextLine(); // Consume the newline character
+
+                        if (taskNumber >= 1 && taskNumber <= taskList.size()) {
+                            System.out.print("Enter the date and time for the alarm (yyyy-MM-dd HH:mm:ss): ");
+                            String alarmDateTimeStr = scanner.nextLine();
+                            try {
+                                Date alarmDateTime = dateFormat.parse(alarmDateTimeStr);
+
+                                // Schedule the alarm for the specified task
+                                timer.schedule(new TaskAlarm(taskList.get(taskNumber - 1)), alarmDateTime);
+
+                                System.out.println("Alarm set for task \"" + taskList.get(taskNumber - 1) +
+                                        "\" at " + alarmDateTimeStr);
+                            } catch (Exception e) {
+                                System.out.println("Invalid date and time format. Please use yyyy-MM-dd HH:mm:ss.");
+                            }
+                        } else {
+                            System.out.println("Invalid task number.");
+                        }
+                    }
+                    break;
+                case 6:
+                    // Cleanup and exit
+                    timer.cancel();
                     scanner.close();
                     System.exit(0);
                 default:
                     System.out.println("Invalid choice. Please try again.");
                     break;
             }
+        }
+    }
+
+    static class TaskAlarm extends TimerTask {
+        private String task;
+
+        TaskAlarm(String task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("ALARM: It's time for the urgent task - \"" + task + "\"!");
         }
     }
 }
